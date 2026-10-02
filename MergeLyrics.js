@@ -36,6 +36,10 @@
       () => { hidePrompt(); openPicker("mergeLyricsFile2Picker"); });
   }
 
+  function isLyricsFilename(filename) {
+    return /_Lyrics\.json$/i.test(String(filename || "").trim());
+  }
+
   async function readJson(file) {
     const text = await file.text();
     return JSON.parse(text);
@@ -159,6 +163,12 @@
     picker1.addEventListener("change", async () => {
       const file = picker1.files && picker1.files[0];
       if (!file) { el("mergeStatus").textContent = "First file selection cancelled."; requestFirstFile(); return; }
+      if (!isLyricsFilename(file.name)) {
+        state.file1 = state.json1 = null;
+        el("mergeStatus").textContent = "The first filename must end with _Lyrics.json. Please select another file.";
+        requestFirstFile();
+        return;
+      }
       try {
         state.file1 = file;
         state.json1 = await readJson(file);
@@ -177,6 +187,12 @@
     picker2.addEventListener("change", async () => {
       const file = picker2.files && picker2.files[0];
       if (!file) { el("mergeStatus").textContent = "Second file selection cancelled."; requestSecondFile(); return; }
+      if (!isLyricsFilename(file.name)) {
+        state.file2 = state.json2 = null;
+        el("mergeStatus").textContent = "The second filename must end with _Lyrics.json. Please select another file.";
+        requestSecondFile();
+        return;
+      }
       try {
         state.file2 = file;
         state.json2 = await readJson(file);
