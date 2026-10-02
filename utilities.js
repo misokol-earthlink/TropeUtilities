@@ -5,13 +5,17 @@
 
   window.addEventListener("load", () => {
     const splash = document.getElementById("splash-screen");
+
     if (splash) {
       setTimeout(() => {
         splash.classList.add("fade-out");
-              setTimeout(() => {
-        splash.classList.add("fade-out");
-        setTimeout(() => window.location.replace("TropeUtilities.html"), 2000);
+
+        setTimeout(() => {
+          window.location.replace("TropeUtilities.html");
+        }, 2000);
+
       }, 5000);
+
       return;
     }
 
