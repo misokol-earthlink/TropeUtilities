@@ -1,11 +1,10 @@
 // Merge Lyrics JSON Files utility.
-// Stage: select two files and establish the proposed merged output filename.
+// Stage: select two files, read titles, determine whether Pocket Torah title tagging is allowed.
 (() => {
   "use strict";
 
-  const state = { file1: null, file2: null };
-
-  function el(id) { return document.getElementById(id); }
+  const state = { file1: null, file2: null, json1: null, json2: null, ptAllowed: false };
+  const el = id => document.getElementById(id);
 
   function showPrompt(text, buttonText, handler) {
     el("mergePromptText").textContent = text;
@@ -14,10 +13,7 @@
     button.onclick = handler;
     el("mergePrompt").classList.add("visible");
   }
-
-  function hidePrompt() {
-    el("mergePrompt").classList.remove("visible");
-  }
+  function hidePrompt() { el("mergePrompt").classList.remove("visible"); }
 
   function proposedMergedName(filename) {
     const dot = filename.toLowerCase().endsWith(".json") ? filename.length - 5 : filename.lastIndexOf(".");
@@ -32,28 +28,56 @@
   }
 
   function requestFirstFile() {
-    showPrompt(
-      "Please select the first file for the merge.",
-      "Select First File",
-      () => { hidePrompt(); openPicker("mergeLyricsFile1Picker"); }
-    );
+    showPrompt("Please select the first file for the merge.", "Select First File",
+      () => { hidePrompt(); openPicker("mergeLyricsFile1Picker"); });
+  }
+  function requestSecondFile() {
+    showPrompt("First file selected. Please select the second file for the merge.", "Select Second File",
+      () => { hidePrompt(); openPicker("mergeLyricsFile2Picker"); });
   }
 
-  function requestSecondFile() {
-    showPrompt(
-      "First file selected. Please select the second file for the merge.",
-      "Select Second File",
-      () => { hidePrompt(); openPicker("mergeLyricsFile2Picker"); }
-    );
+  async function readJson(file) {
+    const text = await file.text();
+    return JSON.parse(text);
+  }
+
+  function isPTTitle(title) {
+    return typeof title === "string" && /-PT$/i.test(title.trim());
+  }
+
+  function withoutPT(title) {
+    return String(title || "").trim().replace(/-PT$/i, "");
+  }
+
+  function setMergedTitleFromFirst() {
+    const title1 = state.json1?.title || "";
+    const base = withoutPT(title1);
+    if (state.ptAllowed && el("ptEnable").checked) el("mergedJsonTitle").value = base + "-PT";
+    else el("mergedJsonTitle").value = base;
+  }
+
+  function updatePTControls() {
+    state.ptAllowed = isPTTitle(state.json1?.title) && isPTTitle(state.json2?.title);
+    const box = el("ptAllowedBox");
+    if (state.ptAllowed) {
+      box.classList.add("visible");
+      el("ptEnable").checked = true;
+      el("ptDisable").checked = false;
+    } else {
+      box.classList.remove("visible");
+      el("ptEnable").checked = false;
+      el("ptDisable").checked = true;
+    }
+    setMergedTitleFromFirst();
   }
 
   function start() {
-    state.file1 = null;
-    state.file2 = null;
+    Object.assign(state, { file1:null, file2:null, json1:null, json2:null, ptAllowed:false });
     el("mergePanel").classList.add("visible");
-    el("mergeFile1Name").textContent = "";
-    el("mergeFile2Name").textContent = "";
+    ["mergeFile1Name","mergeFile2Name","mergeTitle1","mergeTitle2"].forEach(id => el(id).textContent = "");
     el("mergedFileName").value = "";
+    el("mergedJsonTitle").value = "";
+    el("ptAllowedBox").classList.remove("visible");
     el("mergeStatus").textContent = "";
     requestFirstFile();
   }
@@ -63,30 +87,52 @@
     const picker2 = el("mergeLyricsFile2Picker");
     if (!picker1 || !picker2) return;
 
-    picker1.addEventListener("change", () => {
-      const file = picker1.files && picker1.files[0];
-      if (!file) {
-        el("mergeStatus").textContent = "First file selection cancelled.";
-        requestFirstFile();
-        return;
-      }
-      state.file1 = file;
-      el("mergeFile1Name").textContent = file.name;
-      el("mergedFileName").value = proposedMergedName(file.name);
-      el("mergeStatus").textContent = "";
-      requestSecondFile();
+    el("ptEnable").addEventListener("change", () => {
+      if (el("ptEnable").checked) el("ptDisable").checked = false;
+      else el("ptEnable").checked = true;
+      setMergedTitleFromFirst();
+    });
+    el("ptDisable").addEventListener("change", () => {
+      if (el("ptDisable").checked) el("ptEnable").checked = false;
+      else el("ptDisable").checked = true;
+      setMergedTitleFromFirst();
     });
 
-    picker2.addEventListener("change", () => {
-      const file = picker2.files && picker2.files[0];
-      if (!file) {
-        el("mergeStatus").textContent = "Second file selection cancelled.";
+    picker1.addEventListener("change", async () => {
+      const file = picker1.files && picker1.files[0];
+      if (!file) { el("mergeStatus").textContent = "First file selection cancelled."; requestFirstFile(); return; }
+      try {
+        state.file1 = file;
+        state.json1 = await readJson(file);
+        el("mergeFile1Name").textContent = file.name;
+        el("mergeTitle1").textContent = state.json1.title ?? "(No title found)";
+        el("mergedFileName").value = proposedMergedName(file.name);
+        el("mergeStatus").textContent = "";
         requestSecondFile();
-        return;
+      } catch (err) {
+        state.file1 = state.json1 = null;
+        el("mergeStatus").textContent = "The first file could not be read as JSON. Please select another file.";
+        requestFirstFile();
       }
-      state.file2 = file;
-      el("mergeFile2Name").textContent = file.name;
-      el("mergeStatus").textContent = "Both files selected. Proposed merged filename may be edited.";
+    });
+
+    picker2.addEventListener("change", async () => {
+      const file = picker2.files && picker2.files[0];
+      if (!file) { el("mergeStatus").textContent = "Second file selection cancelled."; requestSecondFile(); return; }
+      try {
+        state.file2 = file;
+        state.json2 = await readJson(file);
+        el("mergeFile2Name").textContent = file.name;
+        el("mergeTitle2").textContent = state.json2.title ?? "(No title found)";
+        updatePTControls();
+        el("mergeStatus").textContent = state.ptAllowed
+          ? "Both titles are Pocket Torah titles. Pocket Torah is allowed for the merged title."
+          : "Pocket Torah is not available for the merged title because both source titles are not -PT.";
+      } catch (err) {
+        state.file2 = state.json2 = null;
+        el("mergeStatus").textContent = "The second file could not be read as JSON. Please select another file.";
+        requestSecondFile();
+      }
     });
   }
 

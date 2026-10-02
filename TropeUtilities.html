@@ -32,6 +32,10 @@
     .merge-prompt { display:none; margin:0 0 20px; padding:16px; border:1px solid #9bb3d9; background:#f1f6ff; border-radius:6px; }
     .merge-prompt.visible { display:block; }
     .merge-prompt p { margin:0 0 12px; font-weight:bold; }
+    .pt-allowed { display:none; margin:0 0 18px; padding:12px 14px; border:1px solid #9ab99a; background:#f3fbf3; border-radius:6px; }
+    .pt-allowed.visible { display:block; }
+    .pt-allowed-title { font-weight:bold; margin-right:18px; }
+    .pt-choice { margin-right:16px; font-weight:normal; }
   </style>
   <script src="utilities.js" defer></script>
   <script src="MergeLyrics.js" defer></script>
@@ -46,6 +50,12 @@
     <section id="mergePanel" class="merge-panel" aria-labelledby="mergeHeading">
       <h2 id="mergeHeading">Merge Lyrics JSON Files</h2>
 
+      <div id="ptAllowedBox" class="pt-allowed">
+        <span class="pt-allowed-title">Pocket Torah Allowed</span>
+        <label class="pt-choice"><input id="ptEnable" type="checkbox"> Enable</label>
+        <label class="pt-choice"><input id="ptDisable" type="checkbox"> Disable</label>
+      </div>
+
       <div id="mergePrompt" class="merge-prompt">
         <p id="mergePromptText"></p>
         <button id="mergePromptButton" type="button"></button>
@@ -58,6 +68,18 @@
       <div class="field">
         <label>Second file selected</label>
         <div id="mergeFile2Name" class="readonly"></div>
+      </div>
+      <div class="field">
+        <label>First JSON title</label>
+        <div id="mergeTitle1" class="readonly"></div>
+      </div>
+      <div class="field">
+        <label>Second JSON title</label>
+        <div id="mergeTitle2" class="readonly"></div>
+      </div>
+      <div class="field">
+        <label for="mergedJsonTitle">Merged JSON title</label>
+        <input id="mergedJsonTitle" type="text">
       </div>
       <div class="field">
         <label for="mergedFileName">Merged file name</label>
