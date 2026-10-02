@@ -29,6 +29,9 @@
     .warning-box.visible { display:block; }
     .warning-box ul { margin:8px 0 12px 22px; }
     .small-note { margin-top:6px; color:#666; font-size:13px; }
+    .merge-prompt { display:none; margin:0 0 20px; padding:16px; border:1px solid #9bb3d9; background:#f1f6ff; border-radius:6px; }
+    .merge-prompt.visible { display:block; }
+    .merge-prompt p { margin:0 0 12px; font-weight:bold; }
   </style>
   <script src="utilities.js" defer></script>
   <script src="MergeLyrics.js" defer></script>
@@ -42,14 +45,29 @@
 
     <section id="mergePanel" class="merge-panel" aria-labelledby="mergeHeading">
       <h2 id="mergeHeading">Merge Lyrics JSON Files</h2>
+
+      <div id="mergePrompt" class="merge-prompt">
+        <p id="mergePromptText"></p>
+        <button id="mergePromptButton" type="button"></button>
+      </div>
+
       <div class="field">
         <label>First file selected</label>
         <div id="mergeFile1Name" class="readonly"></div>
+      </div>
+      <div class="field">
+        <label>Second file selected</label>
+        <div id="mergeFile2Name" class="readonly"></div>
+      </div>
+      <div class="field">
+        <label for="mergedFileName">Merged file name</label>
+        <input id="mergedFileName" type="text">
       </div>
       <div id="mergeStatus" aria-live="polite"></div>
     </section>
 
     <input id="mergeLyricsFile1Picker" type="file" accept=".json,application/json" hidden>
+    <input id="mergeLyricsFile2Picker" type="file" accept=".json,application/json" hidden>
   </main>
 </body>
 </html>

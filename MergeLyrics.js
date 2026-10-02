@@ -1,38 +1,92 @@
 // Merge Lyrics JSON Files utility.
-// This first test only selects File 1 and displays its filename.
+// Stage: select two files and establish the proposed merged output filename.
 (() => {
   "use strict";
 
-  function start() {
-    const panel = document.getElementById("mergePanel");
-    const picker = document.getElementById("mergeLyricsFile1Picker");
-    const display = document.getElementById("mergeFile1Name");
-    const status = document.getElementById("mergeStatus");
+  const state = { file1: null, file2: null };
 
-    if (!panel || !picker || !display || !status) return;
+  function el(id) { return document.getElementById(id); }
 
-    panel.classList.add("visible");
-    display.textContent = "";
-    status.textContent = "Select the first Lyrics JSON file.";
+  function showPrompt(text, buttonText, handler) {
+    el("mergePromptText").textContent = text;
+    const button = el("mergePromptButton");
+    button.textContent = buttonText;
+    button.onclick = handler;
+    el("mergePrompt").classList.add("visible");
+  }
 
-    // Clear the value so selecting the same file again still raises change.
+  function hidePrompt() {
+    el("mergePrompt").classList.remove("visible");
+  }
+
+  function proposedMergedName(filename) {
+    const dot = filename.toLowerCase().endsWith(".json") ? filename.length - 5 : filename.lastIndexOf(".");
+    if (dot > 0) return filename.slice(0, dot) + "-Merged" + filename.slice(dot);
+    return filename + "-Merged";
+  }
+
+  function openPicker(id) {
+    const picker = el(id);
     picker.value = "";
     picker.click();
   }
 
-  function initialize() {
-    const picker = document.getElementById("mergeLyricsFile1Picker");
-    if (!picker) return;
+  function requestFirstFile() {
+    showPrompt(
+      "Please select the first file for the merge.",
+      "Select First File",
+      () => { hidePrompt(); openPicker("mergeLyricsFile1Picker"); }
+    );
+  }
 
-    picker.addEventListener("change", () => {
-      const file = picker.files && picker.files[0];
+  function requestSecondFile() {
+    showPrompt(
+      "First file selected. Please select the second file for the merge.",
+      "Select Second File",
+      () => { hidePrompt(); openPicker("mergeLyricsFile2Picker"); }
+    );
+  }
+
+  function start() {
+    state.file1 = null;
+    state.file2 = null;
+    el("mergePanel").classList.add("visible");
+    el("mergeFile1Name").textContent = "";
+    el("mergeFile2Name").textContent = "";
+    el("mergedFileName").value = "";
+    el("mergeStatus").textContent = "";
+    requestFirstFile();
+  }
+
+  function initialize() {
+    const picker1 = el("mergeLyricsFile1Picker");
+    const picker2 = el("mergeLyricsFile2Picker");
+    if (!picker1 || !picker2) return;
+
+    picker1.addEventListener("change", () => {
+      const file = picker1.files && picker1.files[0];
       if (!file) {
-        document.getElementById("mergeStatus").textContent = "File selection cancelled.";
+        el("mergeStatus").textContent = "First file selection cancelled.";
+        requestFirstFile();
         return;
       }
+      state.file1 = file;
+      el("mergeFile1Name").textContent = file.name;
+      el("mergedFileName").value = proposedMergedName(file.name);
+      el("mergeStatus").textContent = "";
+      requestSecondFile();
+    });
 
-      document.getElementById("mergeFile1Name").textContent = file.name;
-      document.getElementById("mergeStatus").textContent = "First file selected. No processing has been performed yet.";
+    picker2.addEventListener("change", () => {
+      const file = picker2.files && picker2.files[0];
+      if (!file) {
+        el("mergeStatus").textContent = "Second file selection cancelled.";
+        requestSecondFile();
+        return;
+      }
+      state.file2 = file;
+      el("mergeFile2Name").textContent = file.name;
+      el("mergeStatus").textContent = "Both files selected. Proposed merged filename may be edited.";
     });
   }
 
