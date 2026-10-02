@@ -1,14 +1,29 @@
-// Trope Utilities splash-page controller.
-// After the splash display, open the Trope Utilities menu page.
-window.addEventListener("load", () => {
-  const splash = document.getElementById("splash-screen");
+// Shared Trope Utilities controller.
+// Keep utility-specific processing in each utility's own script.
+(() => {
+  "use strict";
 
-  // Keep the splash visible briefly, then use the existing 2-second fade.
-  setTimeout(() => {
-    splash.classList.add("fade-out");
+  window.addEventListener("load", () => {
+    const splash = document.getElementById("splash-screen");
+    if (splash) {
+      setTimeout(() => {
+        splash.classList.add("fade-out");
+        setTimeout(() => window.location.replace("TropeUtilities.html"), 2000);
+      }, 1200);
+      return;
+    }
 
-    setTimeout(() => {
-      window.location.replace("TropeUtilities.html");
-    }, 2000);
-  }, 1200);
-});
+    initializeUtilitiesPage();
+  });
+
+  function initializeUtilitiesPage() {
+    const mergeButton = document.getElementById("mergeLyricsFilesBtn");
+    if (mergeButton) {
+      mergeButton.addEventListener("click", () => {
+        if (window.MergeLyrics && typeof window.MergeLyrics.start === "function") {
+          window.MergeLyrics.start();
+        }
+      });
+    }
+  }
+})();

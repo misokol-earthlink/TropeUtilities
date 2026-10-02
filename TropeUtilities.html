@@ -5,65 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trope Utilities</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 32px;
-      background: #f7f7f7;
-      color: #222;
-    }
-    .utilities-panel {
-      max-width: 760px;
-      margin: 30px auto;
-      background: white;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 24px 28px 30px;
-    }
-    h1 { margin: 0 0 24px; }
-    .utility-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .utility-button {
-      width: 100%;
-      text-align: left;
-      padding: 12px 16px;
-      border: 1px solid #aaa;
-      border-radius: 5px;
-      background: royalblue;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .utility-button:hover { background: navy; }
-    #status {
-      min-height: 22px;
-      margin-top: 20px;
-      font-weight: bold;
-      color: #555;
-    }
+    body { font-family: Arial,sans-serif; margin:0; padding:32px; background:#f7f7f7; color:#222; }
+    .utilities-panel { max-width:860px; margin:30px auto; background:white; border:1px solid #ccc; border-radius:8px; padding:24px 28px 30px; }
+    h1 { margin:0 0 24px; }
+    .utility-list { display:flex; flex-direction:column; gap:12px; }
+    button { padding:10px 16px; border:0; border-radius:5px; background:royalblue; color:white; font-size:15px; font-weight:bold; cursor:pointer; }
+    button:hover { background:navy; }
+    button:disabled { opacity:.38; cursor:not-allowed; filter:blur(.35px); }
+    .utility-button { width:100%; text-align:left; padding:12px 16px; font-size:16px; }
+    #status { min-height:22px; margin-top:20px; font-weight:bold; color:#555; }
+    #status.error { color:#9b1c1c; }
+    #status.warning { color:#8a5a00; }
+    .merge-panel { display:none; margin-top:24px; border-top:1px solid #ddd; padding-top:22px; }
+    .merge-panel.visible { display:block; }
+    .field { margin-bottom:14px; }
+    .field label { display:block; font-weight:bold; margin-bottom:5px; }
+    .readonly, input[type="text"] { box-sizing:border-box; width:100%; padding:9px 10px; border:1px solid #aaa; border-radius:4px; background:#fff; font-size:15px; }
+    .readonly { background:#f3f3f3; min-height:38px; }
+    .actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:16px; }
+    .secondary { background:#555; }
+    .secondary:hover { background:#333; }
+    .warning-box { display:none; margin:16px 0; padding:14px; border:1px solid #d6a64b; background:#fff8e8; border-radius:5px; }
+    .warning-box.visible { display:block; }
+    .warning-box ul { margin:8px 0 12px 22px; }
+    .small-note { margin-top:6px; color:#666; font-size:13px; }
   </style>
+  <script src="utilities.js" defer></script>
+  <script src="MergeLyrics.js" defer></script>
 </head>
 <body>
   <main class="utilities-panel">
     <h1>Trope Utilities</h1>
-
     <div class="utility-list">
-      <button id="mergeTropeFilesBtn" class="utility-button" type="button">
-        Merge Trope Files
-      </button>
+      <button id="mergeLyricsFilesBtn" class="utility-button" type="button">Merge Lyrics JSON Files</button>
     </div>
 
-    <div id="status" aria-live="polite"></div>
-  </main>
+    <section id="mergePanel" class="merge-panel" aria-labelledby="mergeHeading">
+      <h2 id="mergeHeading">Merge Lyrics JSON Files</h2>
+      <div class="field">
+        <label>First file selected</label>
+        <div id="mergeFile1Name" class="readonly"></div>
+      </div>
+      <div id="mergeStatus" aria-live="polite"></div>
+    </section>
 
-  <script>
-    document.getElementById("mergeTropeFilesBtn").addEventListener("click", () => {
-      document.getElementById("status").textContent = "Not Implemented";
-    });
-  </script>
+    <input id="mergeLyricsFile1Picker" type="file" accept=".json,application/json" hidden>
+  </main>
 </body>
 </html>
