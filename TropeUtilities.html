@@ -36,6 +36,9 @@
     .pt-allowed.visible { display:block; }
     .pt-allowed-title { font-weight:bold; margin-right:18px; }
     .pt-choice { margin-right:16px; font-weight:normal; }
+    .line-name-choice { display:none; margin:0 0 18px; padding:12px 14px; border:1px solid #b6b6b6; background:#fafafa; border-radius:6px; }
+    .line-name-choice.visible { display:block; }
+    .line-name-title { font-weight:bold; margin-right:18px; }
   </style>
   <script src="utilities.js" defer></script>
   <script src="MergeLyrics.js" defer></script>
@@ -54,6 +57,12 @@
         <span class="pt-allowed-title">Pocket Torah Allowed</span>
         <label class="pt-choice"><input id="ptEnable" type="checkbox"> Enable</label>
         <label class="pt-choice"><input id="ptDisable" type="checkbox"> Disable</label>
+      </div>
+
+      <div id="lineNameChoiceBox" class="line-name-choice">
+        <span class="line-name-title">Line Names</span>
+        <label class="pt-choice"><input id="keepLineNames" type="radio" name="lineNameMode" value="keep" checked> Keep Existing</label>
+        <label class="pt-choice"><input id="renameLineNames" type="radio" name="lineNameMode" value="rename"> Rename Sequentially</label>
       </div>
 
       <div id="mergePrompt" class="merge-prompt">

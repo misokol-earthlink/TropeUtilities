@@ -68,6 +68,12 @@
       el("ptEnable").checked = false;
       el("ptDisable").checked = true;
     }
+    const lineBox = el("lineNameChoiceBox");
+    if (lineBox) {
+      lineBox.classList.toggle("visible", !state.ptAllowed);
+      el("keepLineNames").checked = true;
+      el("renameLineNames").checked = false;
+    }
     setMergedTitleFromFirst();
   }
 
@@ -78,6 +84,9 @@
     el("mergedFileName").value = "";
     el("mergedJsonTitle").value = "";
     el("ptAllowedBox").classList.remove("visible");
+    el("lineNameChoiceBox").classList.remove("visible");
+    el("keepLineNames").checked = true;
+    el("renameLineNames").checked = false;
     el("mergeStatus").textContent = "";
     el("mergeDownloadBtn").disabled = true;
     requestFirstFile();
@@ -99,9 +108,19 @@
       mergedTitle = withoutPT(mergedTitle);
     }
 
+    let mergedLines = [...state.json1.lines, ...state.json2.lines].map(line => ({ ...line }));
+
+    // Sequential renaming is available only when the two source files are not PT-eligible.
+    if (!state.ptAllowed && el("renameLineNames").checked) {
+      mergedLines = mergedLines.map((line, index) => ({
+        ...line,
+        lineName: String(index + 1).padStart(2, "0")
+      }));
+    }
+
     const merged = {
       title: mergedTitle,
-      lines: [...state.json1.lines, ...state.json2.lines]
+      lines: mergedLines
     };
 
     let filename = el("mergedFileName").value.trim() || proposedMergedName(state.file1.name);
