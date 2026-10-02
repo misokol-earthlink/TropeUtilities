@@ -27,12 +27,12 @@
     picker.click();
   }
 
-  function requestFirstFile() {
-    showPrompt("Please select the first file for the merge.", "Select First File",
+  function requestFirstFile(message = "Please select the first file for the merge.") {
+    showPrompt(message, "Select First File",
       () => { hidePrompt(); openPicker("mergeLyricsFile1Picker"); });
   }
-  function requestSecondFile() {
-    showPrompt("First file selected. Please select the second file for the merge.", "Select Second File",
+  function requestSecondFile(message = "First file selected. Please select the second file for the merge.") {
+    showPrompt(message, "Select Second File",
       () => { hidePrompt(); openPicker("mergeLyricsFile2Picker"); });
   }
 
@@ -165,8 +165,8 @@
       if (!file) { el("mergeStatus").textContent = "First file selection cancelled."; requestFirstFile(); return; }
       if (!isLyricsFilename(file.name)) {
         state.file1 = state.json1 = null;
-        el("mergeStatus").textContent = "The first filename must end with _Lyrics.json. Please select another file.";
-        requestFirstFile();
+        el("mergeStatus").textContent = "";
+        requestFirstFile("Invalid Lyrics file name. Please select the first file for the merge.");
         return;
       }
       try {
@@ -189,8 +189,8 @@
       if (!file) { el("mergeStatus").textContent = "Second file selection cancelled."; requestSecondFile(); return; }
       if (!isLyricsFilename(file.name)) {
         state.file2 = state.json2 = null;
-        el("mergeStatus").textContent = "The second filename must end with _Lyrics.json. Please select another file.";
-        requestSecondFile();
+        el("mergeStatus").textContent = "";
+        requestSecondFile("Invalid Lyrics file name. Please select the second file for the merge.");
         return;
       }
       try {
