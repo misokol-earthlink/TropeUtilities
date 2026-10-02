@@ -79,7 +79,44 @@
     el("mergedJsonTitle").value = "";
     el("ptAllowedBox").classList.remove("visible");
     el("mergeStatus").textContent = "";
+    el("mergeDownloadBtn").disabled = true;
     requestFirstFile();
+  }
+
+
+  function mergeAndDownload() {
+    if (!state.json1 || !state.json2) return;
+    if (!Array.isArray(state.json1.lines) || !Array.isArray(state.json2.lines)) {
+      el("mergeStatus").textContent = "Both JSON files must contain a lines array before they can be merged.";
+      return;
+    }
+
+    let mergedTitle = el("mergedJsonTitle").value.trim();
+    if (state.ptAllowed) {
+      mergedTitle = withoutPT(mergedTitle);
+      if (el("ptEnable").checked) mergedTitle += "-PT";
+    } else {
+      mergedTitle = withoutPT(mergedTitle);
+    }
+
+    const merged = {
+      title: mergedTitle,
+      lines: [...state.json1.lines, ...state.json2.lines]
+    };
+
+    let filename = el("mergedFileName").value.trim() || proposedMergedName(state.file1.name);
+    if (!/\.json$/i.test(filename)) filename += ".json";
+
+    const blob = new Blob([JSON.stringify(merged, null, 2) + "\n"], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+    el("mergeStatus").textContent = `Merged ${state.json1.lines.length + state.json2.lines.length} lines and downloaded ${filename}.`;
   }
 
   function initialize() {
@@ -97,6 +134,8 @@
       else el("ptDisable").checked = true;
       setMergedTitleFromFirst();
     });
+
+    el("mergeDownloadBtn").addEventListener("click", mergeAndDownload);
 
     picker1.addEventListener("change", async () => {
       const file = picker1.files && picker1.files[0];
@@ -128,6 +167,7 @@
         el("mergeStatus").textContent = state.ptAllowed
           ? "Both titles are Pocket Torah titles. Pocket Torah is allowed for the merged title."
           : "Pocket Torah is not available for the merged title because both source titles are not -PT.";
+        el("mergeDownloadBtn").disabled = false;
       } catch (err) {
         state.file2 = state.json2 = null;
         el("mergeStatus").textContent = "The second file could not be read as JSON. Please select another file.";
