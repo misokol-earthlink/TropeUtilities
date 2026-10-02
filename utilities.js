@@ -8,8 +8,10 @@
     if (splash) {
       setTimeout(() => {
         splash.classList.add("fade-out");
+              setTimeout(() => {
+        splash.classList.add("fade-out");
         setTimeout(() => window.location.replace("TropeUtilities.html"), 2000);
-      }, 1200);
+      }, 5000);
       return;
     }
 
