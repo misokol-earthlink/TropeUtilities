@@ -13,9 +13,9 @@
     button:hover { background:navy; }
     button:disabled { opacity:.38; cursor:not-allowed; filter:blur(.35px); }
     .utility-button { width:100%; text-align:left; padding:12px 16px; font-size:16px; }
-    #status { min-height:22px; margin-top:20px; font-weight:bold; color:#555; }
-    #status.error { color:#9b1c1c; }
-    #status.warning { color:#8a5a00; }
+    #ats-status { min-height:22px; margin-top:20px; font-weight:bold; color:#555; }
+    #ats-status.error { color:#9b1c1c; }
+    #ats-status.warning { color:#8a5a00; }
     .merge-panel { display:none; margin-top:24px; border-top:1px solid #ddd; padding-top:22px; }
     .merge-panel.visible { display:block; }
     .field { margin-bottom:14px; }
@@ -39,15 +39,48 @@
     .line-name-choice { display:none; margin:0 0 18px; padding:12px 14px; border:1px solid #b6b6b6; background:#fafafa; border-radius:6px; }
     .line-name-choice.visible { display:block; }
     .line-name-title { font-weight:bold; margin-right:18px; }
+
+    /* Scoped Audio Time Slice styling */
+    #audioTimeSlicePanel { font-family: Arial, sans-serif; margin: 28px; max-width: 1050px; color: #222; }
+    #audioTimeSlicePanel h1 { font-size: 24px; margin-bottom: 8px; }
+    #audioTimeSlicePanel h2 { font-size: 19px; margin: 0; }
+    #audioTimeSlicePanel .intro { line-height: 1.45; margin-bottom: 20px; }
+    #audioTimeSlicePanel .field { margin: 10px 0; }
+    #audioTimeSlicePanel label { font-weight: 700; display: block; margin-bottom: 4px; }
+    #audioTimeSlicePanel input[type="text"], #audioTimeSlicePanel input[type="url"] { box-sizing: border-box; width: 100%; padding: 7px; font-size: 14px; }
+    #audioTimeSlicePanel input[type="number"] { width: 100px; padding: 6px; font-size: 14px; }
+    #audioTimeSlicePanel button { padding: 7px 12px; margin: 3px; cursor: pointer; }
+    #audioTimeSlicePanel .primary { font-weight: 700; }
+    #audioTimeSlicePanel .aliyah { border: 1px solid #aaa; border-radius: 7px; padding: 14px; margin: 18px 0; }
+    #audioTimeSlicePanel .aliyah-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+    #audioTimeSlicePanel .aliyah-head input { width: 280px; padding: 6px; font-size: 14px; }
+    #audioTimeSlicePanel table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    #audioTimeSlicePanel th, #audioTimeSlicePanel td { border: 1px solid #bbb; padding: 6px; text-align: left; vertical-align: middle; }
+    #audioTimeSlicePanel th { background: #f2f2f2; }
+    #audioTimeSlicePanel td input[type="text"] { min-width: 150px; }
+    #audioTimeSlicePanel .controls { margin-top: 8px; }
+    #audioTimeSlicePanel #ats-status { margin: 14px 0; font-weight: 700; min-height: 20px; }
+    #audioTimeSlicePanel #ats-clock { font-family: Consolas, monospace; font-size: 17px; margin-left: 12px; }
+    #audioTimeSlicePanel .small { font-size: 13px; color: #555; }
+    #audioTimeSlicePanel .rowbuttons { white-space: nowrap; }
+    #audioTimeSlicePanel .toolbar { padding: 10px; background: #f6f6f6; border: 1px solid #ccc; border-radius: 6px; margin: 15px 0; }
+    #audioTimeSlicePanel textarea { width: 100%; height: 180px; box-sizing: border-box; font-family: Consolas, monospace; font-size: 13px; }
+    #audioTimeSlicePanel { max-width:1050px; margin:24px auto; color:#222; }
+    #audioTimeSlicePanel button { width:auto; text-align:center; font-size:14px; font-weight:normal; background:#e9e9e9; color:#222; border:1px solid #999; border-radius:3px; }
+    #audioTimeSlicePanel button.primary {font-weight:700;}
+    #audioTimeSlicePanel input[type="text"], #audioTimeSlicePanel input[type="url"] {max-width:100%;}
+    #audioTimeSlicePanel .toolbar label {display:block;}
   </style>
   <script src="utilities.js" defer></script>
   <script src="MergeLyrics.js" defer></script>
+  <script src="AudioTimeSlice.js" defer></script>
 </head>
 <body>
   <main class="utilities-panel">
     <h1>Trope Utilities</h1>
     <div class="utility-list">
       <button id="mergeLyricsFilesBtn" class="utility-button" type="button">Merge Lyrics JSON Files</button>
+      <button id="audioTimeSliceBtn" class="utility-button" type="button">Audio Time Slice</button>
     </div>
 
     <section id="mergePanel" class="merge-panel" aria-labelledby="mergeHeading">
@@ -96,6 +129,76 @@
       </div>
       <div style="margin-top:16px;"><button id="mergeDownloadBtn" type="button" disabled>Merge &amp; Download</button></div>
       <div id="mergeStatus" aria-live="polite"></div>
+    </section>
+
+    <section id="audioTimeSlicePanel" class="merge-panel" aria-label="Audio Time Slice">
+
+<h1>High Holiday Audio Timing Editor</h1>
+
+<div class="intro">
+  Use the original site's MP3 URL and define only the portions that should be played.
+  Start and stop values are editable to <strong>0.01 second</strong>. A blank stop means
+  play to the natural end of the MP3.
+</div>
+
+<div class="toolbar">
+  <label for="ats-hhFile">Import HH source catalog or saved timing JSON:</label>
+  <input id="ats-hhFile" type="file" accept=".json,application/json">
+  <label for="ats-hhReading">Reading:</label>
+  <select id="ats-hhReading" disabled><option>Load HH2.json first</option></select>
+  <label for="ats-hhAliyah">Aliyah:</label>
+  <select id="ats-hhAliyah" disabled><option>Select reading first</option></select>
+  <label for="ats-readingId">Trope Player reading ID (editable):</label>
+  <input id="ats-readingId" type="text" value="" placeholder="e.g. CBS_RH1" style="max-width:240px;width:100%">
+  <p class="small">Imported times remain editable. MP3 export retains its known timing caveat.</p>
+</div>
+
+<div class="field">
+  <label for="ats-audioUrl">MP3 source (URL or selected local filename)</label>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <input id="ats-audioUrl" type="text" style="flex:1;min-width:320px;"
+      value="https://images.shulcloud.com/13447/299814.mp3">
+    <input id="ats-localMp3" type="file" accept=".mp3,audio/mpeg,audio/*" aria-label="Choose local MP3">
+  </div>
+  <div class="small">Enter an MP3 URL or select a local audio file. Selecting a local file displays its name here and uses it for playback and export. Load / Reload MP3 keeps the selected file active. To switch to a web source, type or paste its URL and click Load / Reload MP3.</div>
+</div>
+
+<div class="toolbar">
+  <button id="ats-loadBtn" class="primary">Load / Reload MP3</button>
+  <button id="ats-stopBtn">Stop</button>
+  <span id="ats-clock">0.00 s</span>
+  <label for="ats-outputFormat" style="display:inline-block;margin-left:18px;">Save format:</label>
+  <select id="ats-outputFormat" style="padding:6px;"><option value="wav" selected>WAV</option><option value="mp3">MP3 (timing may vary)</option></select>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding:10px;border:2px solid #777;border-radius:6px;background:#fff;">
+    <label for="ats-fileSuffix" style="display:inline;margin:0;">WAV / MP3 filename suffix:</label>
+    <input id="ats-fileSuffix" type="text" value="" placeholder="TINR" style="width:150px;max-width:100%;padding:8px;font-size:15px;" autocomplete="off">
+    <span class="small">Optional. Enter TINR to export Yitro_line1_TINR.wav; leave blank for no suffix.</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;padding:10px;border:2px solid #777;border-radius:6px;background:#fff;">
+    <label for="ats-exportStartLine" style="display:inline;margin:0;">Starting line number (export only):</label>
+    <input id="ats-exportStartLine" type="number" min="1" step="1" value="1" style="width:90px;padding:8px;font-size:15px;">
+    <span class="small">Numbers exported audio filenames and saved JSON lineNumber values consecutively from this value. Playback timings remain unchanged.</span>
+  </div>
+  <p class="small">If the MP3 decoder stops early, export captures the segment in real time with playback muted. The Save Segment button stays disabled until export finishes. Stop cancels the capture and restores the button.</p>
+  <div id="ats-status">Ready</div>
+</div>
+
+<audio id="ats-audio" preload="metadata"></audio>
+
+<div id="ats-aliyahs"></div>
+
+<div class="controls">
+  <button id="ats-addAliyahBtn">+ Add Aliyah</button>
+</div>
+
+<h2 style="margin-top:28px;">Timing Data</h2>
+<p class="small">Copy or save the selected aliyah timing JSON. Export line numbers begin at the Starting line number above.</p>
+<button id="ats-refreshJsonBtn">Refresh JSON</button>
+<button id="ats-copyJsonBtn">Copy JSON</button>
+<button id="ats-saveJsonBtn">Save JSON</button>
+<textarea id="ats-jsonOutput" readonly></textarea>
+
+
     </section>
 
     <input id="mergeLyricsFile1Picker" type="file" accept=".json,application/json" hidden>
