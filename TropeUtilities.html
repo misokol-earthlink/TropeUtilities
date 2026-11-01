@@ -70,10 +70,26 @@
     #audioTimeSlicePanel button.primary {font-weight:700;}
     #audioTimeSlicePanel input[type="text"], #audioTimeSlicePanel input[type="url"] {max-width:100%;}
     #audioTimeSlicePanel .toolbar label {display:block;}
+
+    /* View Lyrics utility: all styles scoped to its own panel. */
+    #viewLyricsPanel .vl-toolbar { margin:16px 0; padding:14px; background:#f5f6f8; border:1px solid #ddd; border-radius:5px; }
+    #viewLyricsPanel .vl-toolbar label { font-weight:bold; margin-right:10px; }
+    #viewLyricsPanel .vl-status { margin:12px 0; min-height:20px; color:#555; }
+    #viewLyricsPanel .vl-status.error { color:#a00000; }
+    #viewLyricsPanel .vl-line { display:grid; grid-template-columns:92px minmax(0,1fr); column-gap:16px; padding:15px 0; border-bottom:1px solid #ddd; }
+    #viewLyricsPanel .vl-meta { text-align:left; overflow-wrap:anywhere; }
+    #viewLyricsPanel .vl-ordinal { font-weight:bold; font-size:16px; }
+    #viewLyricsPanel .vl-reference { font-size:12px; color:#555; margin-top:5px; }
+    #viewLyricsPanel .vl-words { display:flex; flex-flow:row wrap; direction:rtl; justify-content:flex-start; align-items:flex-start; gap:15px 14px; min-width:0; }
+    #viewLyricsPanel .vl-pair { display:flex; flex-direction:column; align-items:center; flex:0 0 auto; max-width:100%; gap:5px; }
+    #viewLyricsPanel .vl-hebrew { font: bold 18px/1.65 'Times New Roman',serif; color:#2546ad; direction:rtl; unicode-bidi:plaintext; text-align:center; white-space:pre-wrap; }
+    #viewLyricsPanel .vl-translit { font: bold 15px/1.35 Arial,sans-serif; color:maroon; direction:ltr; text-align:center; white-space:pre-wrap; }
+    @media (max-width:550px) { #viewLyricsPanel .vl-line { grid-template-columns:75px minmax(0,1fr); column-gap:8px; } }
   </style>
   <script src="utilities.js" defer></script>
   <script src="MergeLyrics.js" defer></script>
   <script src="AudioTimeSlice.js" defer></script>
+  <script src="ViewLyrics.js" defer></script>
 </head>
 <body>
   <main class="utilities-panel">
@@ -81,6 +97,7 @@
     <div class="utility-list">
       <button id="mergeLyricsFilesBtn" class="utility-button" type="button">Merge Lyrics JSON Files</button>
       <button id="audioTimeSliceBtn" class="utility-button" type="button">Audio Time Slice</button>
+      <button id="viewLyricsBtn" class="utility-button" type="button">View Lyrics JSON Files</button>
     </div>
 
     <section id="mergePanel" class="merge-panel" aria-labelledby="mergeHeading">
@@ -129,6 +146,18 @@
       </div>
       <div style="margin-top:16px;"><button id="mergeDownloadBtn" type="button" disabled>Merge &amp; Download</button></div>
       <div id="mergeStatus" aria-live="polite"></div>
+    </section>
+
+
+    <section id="viewLyricsPanel" class="merge-panel" aria-labelledby="viewLyricsHeading">
+      <h2 id="viewLyricsHeading">View Lyrics JSON Files</h2>
+      <div class="vl-toolbar">
+        <label for="vl-file">Select a Lyrics JSON file:</label>
+        <input id="vl-file" type="file" accept=".json,application/json">
+        <div id="vl-status" class="vl-status" role="status" aria-live="polite">Select a local Lyrics JSON file to display.</div>
+      </div>
+      <h3 id="vl-title"></h3>
+      <div id="vl-lines"></div>
     </section>
 
     <section id="audioTimeSlicePanel" class="merge-panel" aria-label="Audio Time Slice">

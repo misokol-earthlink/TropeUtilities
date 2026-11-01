@@ -23,6 +23,12 @@
   });
 
   function initializeUtilitiesPage() {
+    const viewButton = document.getElementById("viewLyricsBtn");
+    if (viewButton) viewButton.addEventListener("click", () => {
+      document.getElementById("mergePanel")?.classList.remove("visible");
+      document.getElementById("audioTimeSlicePanel")?.classList.remove("visible");
+      window.ViewLyrics?.start();
+    });
     const audioButton = document.getElementById("audioTimeSliceBtn");
     if (audioButton) {
       audioButton.addEventListener("click", () => window.AudioTimeSlice?.start());
